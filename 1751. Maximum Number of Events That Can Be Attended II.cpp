@@ -1,3 +1,27 @@
+
+
+class Solution {
+public:
+    int maxValue(vector<vector<int>>& events, int k) {
+        sort(events.begin(), events.end());
+        int n = events.size();
+        vector<vector<int>> dp(n+1, vector<int>(k+1, 0));
+        vector<int> next(n, n);
+        for(int i=0; i<n; i++){
+            vector<int> v = {events[i][1], INT_MAX, INT_MAX};
+            next[i] = upper_bound(events.begin()+i+1, events.end(), v) - events.begin();
+        }
+        for(int i=n-1; i>=0; i--){
+            for(int K=1; K<=k; K++){
+                dp[i][K] = max(dp[i+1][K], events[i][2] + dp[next[i]][K-1]);
+            }
+        }
+        return dp[0][k];
+    }
+};
+
+
+
 class Solution {
 public:
     vector<vector<int>> dp;
