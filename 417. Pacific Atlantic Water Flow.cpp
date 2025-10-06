@@ -1,44 +1,66 @@
 class Solution {
 public:
-    int m, n;
-    vector<vector<int>> directions = {{1,0}, {-1,0}, {0,1}, {0,-1}};
-
+    vector<vector<int>> dir = {{1,0}, {0,-1}, {-1,0}, {0,1}};
     vector<vector<int>> pacificAtlantic(vector<vector<int>>& heights) {
-        m = heights.size();
-        n = heights[0].size();
-
-        vector<vector<bool>> pacific(m, vector<bool>(n, false));
-        vector<vector<bool>> atlantic(m, vector<bool>(n, false));
-
-        for (int j = 0; j < n; j++) dfs(0, j, heights, pacific);
-        for (int i = 0; i < m; i++) dfs(i, 0, heights, pacific);
-
-        for (int j = 0; j < n; j++) dfs(m-1, j, heights, atlantic);
-        for (int i = 0; i < m; i++) dfs(i, n-1, heights, atlantic);
-
-        vector<vector<int>> result;
-        for (int i = 0; i < m; i++) {
-            for (int j = 0; j < n; j++) {
-                if (pacific[i][j] && atlantic[i][j]) {
-                    result.push_back({i, j});
+        int n = heights.size();
+        int m = heights[0].size();
+        vector<vector<bool>> isAtlantic(n, vector<bool>(m, false));
+        queue<pair<int,int>> q;
+        for(int i=0; i<n; i++){
+            q.push({i, m-1});
+            isAtlantic[i][m-1] = true;
+        }
+        for(int i=0; i<m; i++){
+            q.push({n-1, i});
+            isAtlantic[n-1][i] = true;
+        }
+        while(!q.empty()){
+            int i = q.front().first;
+            int j = q.front().second;
+            q.pop();
+            for(vector<int> d : dir){
+                int i_ = i+d[0];
+                int j_ = j+d[1];
+                if(i_<n && i_>=0 && j_<m && j_>=0 && isAtlantic[i_][j_]==false && heights[i_][j_]>=heights[i][j]){
+                    q.push({i_, j_});
+                    isAtlantic[i_][j_] = true;
+                    cout<<i<<j<<" "<<i_<<j_<<";";
                 }
             }
         }
-
-        return result;
-    }
-
-    void dfs(int i, int j, vector<vector<int>>& heights, vector<vector<bool>>& visited) {
-        visited[i][j] = true;
         
-        for (auto& d : directions) {
-            int x = i + d[0], y = j + d[1];
             
-            if (x < 0 || x >= m || y < 0 || y >= n) continue;
-            if (visited[x][y]) continue;
-            if (heights[x][y] < heights[i][j]) continue;
-            
-            dfs(x, y, heights, visited);
+        vector<vector<bool>> isPacific(n, vector<bool>(m,false));
+        for(int i=0; i<n; i++){
+            q.push({i, 0});
+            isPacific[i][0] = true;
+            }
+        for(int i=0; i<m; i++){
+            q.push({0, i});
+            isPacific[0][i] = true;
         }
+        while(!q.empty()){
+            int i = q.front().first;
+            int j = q.front().second;
+            q.pop();
+            for(vector<int> d : dir){
+                int i_ = i+d[0];
+                int j_ = j+d[1];
+                if(i_<n && i_>=0 && j_<m && j_>=0 && isPacific[i_][j_]==false && heights[i_][j_]>=heights[i][j]){
+                    q.push({i_, j_});
+                    isPacific[i_][j_] = true;
+                }
+            }
+        }
+        
+        vector<vector<int>> res;
+        for(int i=0; i<n; i++){
+            for(int j=0; j<m; j++){
+                if(isPacific[i][j] && isAtlantic[i][j])
+                    res.push_back({i, j});
+            }
+        }
+        return res;
+
     }
 };
